@@ -1,12 +1,17 @@
 package com.example.telepass;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 public class HelloController implements Observer {
@@ -151,6 +156,24 @@ public class HelloController implements Observer {
             statusLabel.setText("Contratto convertito a Telepass+ con successo!");
         } else {
             statusLabel.setText("Errore: dispositivo non trovato.");
+        }
+    }
+
+    @FXML
+    void onLogoutClick() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login-view.fxml"));
+            Parent root = loader.load();
+
+            // Applica il file CSS alla scena
+            Scene scene = new Scene(root, 800, 600);
+            scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
+
+            Stage stage = (Stage) statusLabel.getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

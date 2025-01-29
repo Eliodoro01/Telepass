@@ -27,6 +27,9 @@
     <!-- Pulsante di login -->
     <Button text="Accedi" onAction="#onLoginClick" styleClass="login-button" />
 
+    <!-- Pulsante di logout (disabilitato o nascosto nella schermata di login) -->
+    <Button text="Logout" onAction="#onLogoutClick" styleClass="logout-button" visible="false" />
+
     <!-- Etichetta di stato -->
     <Label fx:id="loginStatusLabel" text="" styleClass="status-label" />
 </VBox>

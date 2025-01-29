@@ -42,15 +42,31 @@ public class LoginController {
         }
     }
 
+    @FXML
+    void onLogoutClick() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login-view.fxml"));
+            Parent root = loader.load();
+
+            // Applica il file CSS alla scena
+            Scene scene = new Scene(root, 800, 600);
+            scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
+
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void openMainView(boolean isAdmin) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("main-view.fxml"));
             Parent root = loader.load();
 
-            // Ottieni il controller principale
+            // Passa la modalità (amministratore o utente) al controller principale
             HelloController mainController = loader.getController();
-
-            // Imposta la modalità direttamente nel controller
             mainController.setAdminMode(isAdmin);
 
             Stage stage = (Stage) usernameField.getScene().getWindow();

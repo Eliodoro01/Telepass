@@ -96,3 +96,24 @@
 .login-button:hover {
     -fx-background-color: #005bb5;
 }
+
+/* Pulsante di logout */
+.logout-button {
+    -fx-pref-width: 100px;
+    -fx-pref-height: 30px;
+    -fx-font-size: 14px;
+    -fx-background-color: #dc3545; /* Rosso */
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.logout-button:hover {
+    -fx-background-color: #c82333; /* Rosso più scuro */
+}
+
+/* Stile per la barra superiore */
+.top-bar {
+    -fx-padding: 10;
+    -fx-background-color: #f4f4f4;
+}
