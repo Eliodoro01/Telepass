@@ -11,6 +11,44 @@ public class TelepassSystem extends Subject {
         initializeDatabase();
     }
 
+    private PaymentStrategy paymentStrategy;
+
+    public void setPaymentStrategy(PaymentStrategy strategy) {
+        this.paymentStrategy = strategy;
+    }
+
+    public boolean processPayment(String deviceCode, double amount) {
+        // Recupera il metodo di pagamento dal DB
+        String paymentMethod = getPaymentMethodFromDB(deviceCode);
+
+        // Configura la strategia
+        switch (paymentMethod) {
+            case "creditcard":
+                paymentStrategy = new CreditCardPayment();
+                break;
+            case "banktransfer":
+                paymentStrategy = new BankTransferPayment();
+                break;
+        }
+
+        return paymentStrategy.pay(amount);
+    }
+
+    private String getPaymentMethodFromDB(String deviceCode) {
+        // Query al database per ottenere il metodo di pagamento
+        // Esempio semplificato:
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "SELECT payment_method FROM devices WHERE device_code = ?")) {
+            pstmt.setString(1, deviceCode);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next() ? rs.getString("payment_method") : "unknown";
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "unknown";
+        }
+    }
+
     private void initializeDatabase() {
         try (Connection conn = DriverManager.getConnection(DB_URL);
              Statement stmt = conn.createStatement()) {
@@ -85,19 +123,33 @@ public class TelepassSystem extends Subject {
     }
 
     public double enterTollBooth(String deviceCode) {
-        double amount = 2.50; // Tariffa fissa
-        String sql = "INSERT INTO transactions(device_code, type, amount) VALUES(?, 'ENTRY', ?)";
+        String sql = "SELECT * FROM devices WHERE device_code = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, deviceCode);
-            pstmt.setDouble(2, amount);
-            pstmt.executeUpdate();
-            notifyObservers("Transazione ENTRY registrata per il dispositivo: " + deviceCode);
-            return amount;
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                IVehicle vehicle = new Vehicle(
+                        rs.getString("license_plate"),
+                        rs.getString("owner_name"),
+                        rs.getString("payment_method"),
+                        deviceCode
+                );
+
+                // Applica il decorator se è Telepass+
+                if (rs.getBoolean("is_telepass_plus")) {
+                    vehicle = new TelepassPlusDecorator(vehicle);
+                }
+
+                double amount = vehicle.enterTollBooth();
+                // Registra la transazione...
+                return amount;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return -1;
         }
+        return -1;
     }
 
     public double exitTollBooth(String deviceCode) {
